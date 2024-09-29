@@ -30,27 +30,28 @@ def load_data(directory):
 def train_model(data_directory):
     X, y = load_data(data_directory)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    model = svm.SVC(kernel='linear', probability=True)  # เพิ่ม probability=True
+    model = svm.SVC(kernel='linear', probability=True)
     model.fit(X_train, y_train)  
     y_pred = model.predict(X_test)
     print("Accuracy:", accuracy_score(y_test, y_pred))
     print(classification_report(y_test, y_pred))
     return model
 
-def predict(model, file_path, threshold=0.5):
+def predict(model, file_path, threshold=0.0):
     feature = extract_features(file_path)
-    probabilities = model.predict_proba([feature])[0]  # ทำนายความน่าจะเป็น
-    max_prob = max(probabilities)
+    probabilities = model.predict_proba([feature])[0]
+    max_prob_index = np.argmax(probabilities)
+    max_prob = probabilities[max_prob_index]
     
-    if max_prob >= threshold:  # ตรวจสอบว่าความน่าจะเป็นเกินกว่าค่าที่กำหนดหรือไม่
-        prediction = model.predict([feature])[0]
-        return prediction, probabilities  # ส่งกลับคำทำนายและความน่าจะเป็น
+    if max_prob >= threshold:
+        prediction = model.classes_[max_prob_index]  # ค้นหาชื่อคลาสที่มีค่าความน่าจะเป็นสูงสุด
+        return prediction, probabilities
     else:
-        return None, None  # ถ้าไม่ตรงก็ไม่แสดงผล
+        return None, None
 
 if __name__ == "__main__":
-    data_directory = 'C:/Users/natty/Desktop/New folder/SoundProject/sampleforb'  # Replace with your training data directory
-    input_directory = 'C:/Users/natty/Desktop/New folder/SoundProject/input'  # Replace with your input directory
+    data_directory = 'C:/Users/natty/Desktop/New folder/SoundProject/sampleforb'
+    input_directory = 'C:/Users/natty/Desktop/New folder/SoundProject/input'
     model = train_model(data_directory)
     
     while True:
@@ -58,16 +59,15 @@ if __name__ == "__main__":
         if input_file.lower() == "exit":
             break
         
-        # สร้างเส้นทางเต็มสำหรับไฟล์ที่ป้อน
         file_path = os.path.join(input_directory, input_file + '.wav')
         
         if os.path.isfile(file_path):
             try:
-                result, probabilities = predict(model, file_path)  # ทำนายคลาสของไฟล์ที่ป้อน
+                result, probabilities = predict(model, file_path)
                 if result:
                     print()
                     print("Predicted label:", result)
-                    print("Probabilities:", probabilities)  # แสดงความน่าจะเป็น
+                    print("Probabilities:", probabilities)
                 else:
                     print("No matching result found.")
             except Exception as e:

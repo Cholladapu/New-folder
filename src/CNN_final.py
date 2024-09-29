@@ -53,7 +53,7 @@ model = tf.keras.Sequential([
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
 # ฝึกโมเดล
-num_epochs = 200
+num_epochs = 70
 model.fit(X_train, y_train, epochs=num_epochs, batch_size=32, validation_data=(X_test, y_test))
 
 # ฟังก์ชันสำหรับการพยากรณ์ตัวอย่างใหม่
@@ -73,7 +73,7 @@ def predict_new_sample(file_path):
         probabilities = predictions.flatten()
 
         # กำหนดเกณฑ์ความมั่นใจ
-        confidence_threshold = 0.5  # เปลี่ยนตามที่ต้องการ
+        confidence_threshold = 0.0  # เปลี่ยนตามที่ต้องการ
 
         if confidence < confidence_threshold:
             print("No matching class found.")  # แสดงข้อความเมื่อไม่เจอคำที่ตรงกัน
